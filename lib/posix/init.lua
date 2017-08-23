@@ -19,7 +19,7 @@
 
 local bit = require "bit32"
 local M = {}
-M.conf = { _DEBUG = false }
+local _DEBUG = require "posix.config"._DEBUG
 
 -- For backwards compatibility, copy all table entries into M namespace.
 for _, sub in ipairs {
@@ -40,15 +40,10 @@ end
 
 
 -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-M.deprecated = require "posix.deprecated"
-M.deprecated.conf._DEBUG = M.conf._DEBUG
-
-M.compat = require "posix.compat"
-M.compat.conf._DEBUG = M.conf._DEBUG
-for k, v in pairs (M.deprecated) do
+for k, v in pairs (require "posix.deprecated") do
   M[k] = v
 end
-for k, v in pairs (M.compat) do
+for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
@@ -135,7 +130,7 @@ local function euidaccess (file, mode)
   set_errno (EACCESS)
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.euidaccess = function (...)
     local argt = {...}
     checkstring ("euidaccess", 1, argt[1])
@@ -190,7 +185,7 @@ local function openpty (term, win)
   return nil, errmsg
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.openpty = function (...)
     local argt = {...}
     if #argt > 0 then toomanyargerror ("openpty", 0, #argt) end
@@ -226,7 +221,7 @@ local function execx (task, ...)
   end
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.execx = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
     if typetask ~= "table" and typetask ~= "function" then
@@ -264,7 +259,7 @@ local function spawn (task, ...)
   end
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.spawn = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
     if typetask ~= "table" and typetask ~= "function" then
@@ -296,7 +291,7 @@ local function pclose (pfd)
   return reason, status
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.pclose = function (...)
     local argt = {...}
     checktable ("pclose", 1, argt[1])
@@ -354,7 +349,7 @@ local function popen (task, mode, pipe_fn)
   return {pids = {pid}, fd = parent_fd}
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.popen = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
     if typetask ~= "table" and typetask ~= "function" then
@@ -402,7 +397,7 @@ local function popen_pipeline (tasks, mode, pipe_fn)
   return pfd
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.popen_pipeline = function (...)
     local argt = {...}
     checktable ("popen_pipeline", 1, argt[1])
@@ -448,7 +443,7 @@ local function timeradd (x, y)
   return { sec = sec, usec = usec }
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.timeradd = function (...)
     local argt = {...}
     checktable ("timeradd", 1, argt[1])
@@ -475,7 +470,7 @@ local function timercmp (x, y)
   end
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.timercmp = function (...)
     local argt = {...}
     checktable ("timercmp", 1, argt[1])
@@ -515,7 +510,7 @@ local function timersub (x,y)
   return { sec = sec, usec = usec }
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   M.timersub = function (...)
     local argt = {...}
     checktable ("timersub", 1, argt[1])
@@ -549,7 +544,7 @@ local function glob (args)
   return posix_glob.glob(args.pattern, flags)
 end
 
-if M.conf._DEBUG ~= false then
+if _DEBUG ~= false then
   local validtypes = { ["table"] = true, ["string"] = true, ["nil"] = true }
 
   M.glob = function (...)
